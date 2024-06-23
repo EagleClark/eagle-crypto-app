@@ -1,10 +1,10 @@
 'use client'
 
-import React, { useEffect, useState } from 'react';
+import React, { ChangeEvent, useEffect, useState } from 'react';
 import { InboxOutlined } from '@ant-design/icons';
 import type { UploadFile } from 'antd';
-import { Button, Input, Space, Upload } from 'antd';
-import { open } from '@tauri-apps/api/dialog';
+import { Button, Input, message, Space, Spin, Upload } from 'antd';
+import { open, save } from '@tauri-apps/api/dialog';
 import { appWindow } from '@tauri-apps/api/window';
 import { UnlistenFn } from '@tauri-apps/api/event';
 import { invoke } from '@tauri-apps/api/tauri';
@@ -12,10 +12,11 @@ import { invoke } from '@tauri-apps/api/tauri';
 const { Dragger } = Upload;
 
 const FileCrypto: React.FC = () => {
+  const [messageApi, contextHolder] = message.useMessage();
   const [filePath, setFilePath] = useState('');
   const [fileList, setFileList] = useState<UploadFile[]>([]);
-  const [encryptLoading, setEncryptLoading] = useState(false);
-  const [decryptLoading, setDecryptLoading] = useState(false);
+  const [secretKey, setSecretKey] = useState('');
+  const [spinning, setSpinning] = useState(false);
 
   const callFileDialog = async () => {
     const selected = await open({
@@ -29,23 +30,108 @@ const FileCrypto: React.FC = () => {
     return false;
   };
 
-  // const filePath = await save({
-  //   filters: [{
-  //     name: 'Image',
-  //     extensions: ['png', 'jpeg']
-  //   }]
-  // });
+  const getSaveDefaultPath = () => {
+    const index = filePath.lastIndexOf('/');
+
+    return filePath.slice(0, index);
+  };
+
+  const callSaveDialog = async (isEncrypt: boolean) => {
+    const savePath = await save({
+      title: isEncrypt ? '选择加密文件保存路径' : '选择解密后的文件保存路径',
+      defaultPath: getSaveDefaultPath(),
+    });
+
+    return savePath;
+  };
+
+  const handleKeyChange = (event: ChangeEvent<HTMLInputElement>) => {
+    setSecretKey(event.currentTarget.value);
+  };
+
+  const checkInput = () => {
+    if (!filePath) {
+      messageApi.open({
+        type: 'error',
+        content: '请选择文件',
+      });
+      return false;
+    }
+
+    if (!secretKey) {
+      messageApi.open({
+        type: 'error',
+        content: '密钥不能为空',
+      });
+      return false;
+    }
+
+    return true;
+  }
 
   const handleEncrypt = async () => {
-    setEncryptLoading(true);
-    await invoke('aes256_encrypt', { filePath });
-    setEncryptLoading(false);
+    if (!checkInput()) {
+      return;
+    }
+
+    const savePath = await callSaveDialog(true);
+
+    if (!savePath) {
+      return;
+    }
+
+    setSpinning(true);
+    invoke('aes256_encrypt', {
+      filePath,
+      secretKey: secretKey.padEnd(32, '0'),
+      savePath,
+    })
+    .then(() => {
+      messageApi.open({
+        type: 'success',
+        content: '加密文件成功，请保管好您的密码，否则文件将无法解密',
+      });
+    })
+    .finally(() => {
+      setSecretKey('');
+      setSpinning(false);
+    });
   };
 
   const handleDecrypt = async () => {
-    setDecryptLoading(true);
-    await invoke('aes256_decrypt', { filePath });
-    setDecryptLoading(false);
+    if (!checkInput()) {
+      return;
+    }
+
+    const savePath = await callSaveDialog(false);
+
+    if (!savePath) {
+      return;
+    }
+
+    setSpinning(true);
+    invoke('aes256_decrypt', {
+      filePath,
+      secretKey: secretKey.padEnd(32, '0'),
+      savePath,
+    })
+    .then(res => {
+      if (res === 'success') {
+        messageApi.open({
+          type: 'success',
+          content: '解密文件成功',
+        });
+      } else {
+        messageApi.open({
+          type: 'error',
+          content: '文件未加密或者密钥错误',
+        });
+      }
+    })
+    .finally(() => {
+      setSecretKey('');
+      setSpinning(false);
+    });
   };
 
   useEffect(() => {
@@ -66,6 +152,8 @@ const FileCrypto: React.FC = () => {
 
   return (
     <div>
+      {contextHolder}
+      <Spin tip={'程序执行中......'} spinning={spinning} fullscreen />
       <Space direction='vertical' className='w-full'>
         <div className='h-48' onClick={callFileDialog}>
           <Dragger
@@ -93,14 +181,19 @@ const FileCrypto: React.FC = () => {
           />
         </Space.Compact>
         <div className='w-full mt-2'>
-          <Input.Password placeholder="请输入密钥" size="large" />
+          <Input.Password
+            placeholder="请输入密钥"
+            size="large"
+            maxLength={32}
+            value={secretKey}
+            onChange={handleKeyChange}
+          />
         </div>
         <div className='w-full mt-2 flex'>
           <Button
             type="primary"
             size="large"
             className='w-1/2'
-            loading={encryptLoading}
             onClick={handleEncrypt}
           >
             {'加密'}
@@ -108,7 +201,6 @@ const FileCrypto: React.FC = () => {
           <Button
             size="large"
             className='ml-2 w-1/2'
-            loading={decryptLoading}
             onClick={handleDecrypt}
           >
             {'解密'}

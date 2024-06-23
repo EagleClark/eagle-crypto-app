@@ -3,7 +3,7 @@
 
 mod aes256;
 
-use std::fs::{File, OpenOptions};
+use std::fs::{File, OpenOptions, remove_file};
 use std::io::{Write, BufReader, BufRead};
 
 const ENCRYPT_BUFFER_SIZE: usize = 512;
@@ -28,14 +28,14 @@ fn main() {
 }
 
 #[tauri::command]
-fn aes256_encrypt(file_path: String) {
-  // , secret_key: String
-  let key = [0x31; 32];
-  let iv = [0x30; 16];
+async fn aes256_encrypt(file_path: String, secret_key: String, save_path: String) {
+  let key = secret_key.as_bytes();
+  let iv = &key[0..16];
 
   // 创建一个新文件
-  let mut file = OpenOptions::new().create(true).append(true).open(format!("{}.encrypt", file_path)).unwrap();
+  let mut file = OpenOptions::new().create(true).append(true).open(save_path).unwrap();
 
+  // TODO 找不到文件
   // 打开选择的文件
   let file_tobe_encrypt = File::open(file_path).unwrap();
 
@@ -52,7 +52,7 @@ fn aes256_encrypt(file_path: String) {
       }
 
       // 加密
-      let e_data = aes256::aes256_cbc_encrypt(buffer, &key, &iv).unwrap();
+      let e_data = aes256::aes256_cbc_encrypt(buffer, key, iv).unwrap();
 
       // 写入内容到文件
       file.write_all(&e_data).unwrap();
@@ -63,14 +63,15 @@ fn aes256_encrypt(file_path: String) {
 }
 
 #[tauri::command]
-fn aes256_decrypt(file_path: String) {
-  // , secret_key: String
-  let key = [0x31; 32];
-  let iv = [0x30; 16];
+async fn aes256_decrypt(file_path: String, secret_key: String, save_path: String) -> String {
+  let key = secret_key.as_bytes();
+  let iv = &key[0..16];
+  let mut res = String::from("");
 
   // 创建一个新文件，待写入数据
-  let mut file = OpenOptions::new().create(true).append(true).open(format!("{}.decrypt", file_path)).unwrap();
+  let mut file = OpenOptions::new().create(true).append(true).open(&save_path).unwrap();
 
+  // TODO 找不到文件
   // 打开待解密文件
   let file_tobe_decrypt = File::open(file_path).unwrap();
 
@@ -83,16 +84,28 @@ fn aes256_decrypt(file_path: String) {
       let buffer_length = buffer.len();
 
       if buffer_length == 0 {
+        res.push_str("success");
         break;
       }
 
       // 解密
-      let d_data = aes256::aes256_cbc_decrypt(buffer, &key, &iv).unwrap();
+      let d_data = aes256::aes256_cbc_decrypt(buffer, &key, &iv);
 
-      // 写入内容到新文件
-      file.write_all(&d_data).unwrap();
+      match d_data {
+        Ok(data) => {
+          // 写入内容到新文件
+          file.write_all(&data).unwrap();
 
-      // 冲缓冲区中消耗所有字节
-      reader.consume(buffer_length);
+          // 冲缓冲区中消耗所有字节
+          reader.consume(buffer_length);
+        },
+        Err(_) => {
+          remove_file(&save_path).unwrap();
+          res.push_str("failed");
+          break;
+        }
+    };
   }
+
+  res.into()
 }

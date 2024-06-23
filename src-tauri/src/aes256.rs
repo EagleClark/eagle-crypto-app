@@ -7,8 +7,8 @@ iv 128Bits(16Bytes)
 */
 pub fn aes256_cbc_encrypt(
   data: &[u8],
-  key: &[u8; 32],
-  iv: &[u8; 16],
+  key: &[u8],
+  iv: &[u8],
 ) -> Result<Vec<u8>, SymmetricCipherError> {
   let mut encryptor = crypto::aes::cbc_encryptor(
     crypto::aes::KeySize::KeySize256,
@@ -41,8 +41,8 @@ iv 128Bits(16Bytes)
 */
 pub fn aes256_cbc_decrypt(
   data: &[u8],
-  key: &[u8; 32],
-  iv: &[u8; 16],
+  key: &[u8],
+  iv: &[u8],
 ) -> Result<Vec<u8>, SymmetricCipherError> {
   let mut decryptor = crypto::aes::cbc_decryptor(
     crypto::aes::KeySize::KeySize256,
