@@ -6,6 +6,9 @@ import { AntdRegistry } from '@ant-design/nextjs-registry';
 import { ConfigProvider, theme } from 'antd';
 import { Layout } from 'antd';
 import { useRouter } from 'next/navigation';
+import { appWindow, LogicalSize } from '@tauri-apps/api/window';
+
+appWindow.setMinSize(new LogicalSize(800, 600));
 
 const { Header, Sider, Content } = Layout;
 

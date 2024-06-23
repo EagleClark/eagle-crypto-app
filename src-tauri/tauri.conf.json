@@ -20,6 +20,9 @@
       },
       "path": {
         "all": true
+      },
+      "window": {
+        "setMinSize": true
       }
     },
     "bundle": {
