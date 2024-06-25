@@ -1,5 +1,5 @@
 import React, { ChangeEvent, useState } from 'react';
-import { Alert, Button, Form, Input, message, Space, Spin, Upload } from 'antd';
+import { Alert, Button, Form, Input, message, Space } from 'antd';
 import { useCopy } from './useCopy';
 import { ZERO_WIDTH_CHAR } from '../lib/constant';
 
