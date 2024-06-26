@@ -1,6 +1,7 @@
 import React, { ChangeEvent, useState } from 'react';
 import { Button, Divider, Form, Input, message, Space } from 'antd';
 import { useCopy } from './useCopy';
+import { ZERO_WIDTH_CHAR } from '../lib/constant';
 
 const { TextArea } = Input;
 
@@ -11,8 +12,7 @@ export default function TextSteganography() {
   const [secretText, setSecretText] = useState('');
   const [resultText, setResultText, copyResult] = useCopy();
   const [steganographyText, setSteganographyText] = useState('');
-  const [hiddenText, setHiddenText, copyHidden] = useCopy();
-  
+  const [hiddenText, setHiddenText] = useState('');
 
   const handleTextChange = (event: ChangeEvent<HTMLTextAreaElement>, type: string) => {
     const { value } = event.currentTarget;
@@ -36,14 +36,8 @@ export default function TextSteganography() {
     }
   };
 
-  const steganography = () => {};
-
-  const handleCopy = async (type: string) => {
-    if (type === 'result') {
-      await copyResult();
-    } else if (type === 'hidden') {
-      await copyHidden();
-    }
+  const handleCopy = async () => {
+    await copyResult();
 
     message.open({
       type: 'success',
@@ -51,7 +45,71 @@ export default function TextSteganography() {
     });
   };
 
-  const antiStego = () => {};
+  const steganography = () => {
+    // 字符转数组
+    const res = Array.from(secretText)
+      // 转成二级制
+      .map(singleStr => singleStr.codePointAt(0)!.toString(2))
+      // 0、1替换为零宽字符
+      .map(binStr =>
+        Array.from(binStr)
+          .map(singleBinStr => singleBinStr === '1' ? ZERO_WIDTH_CHAR[1] : ZERO_WIDTH_CHAR[2])
+          .join('')
+      )
+      .join(ZERO_WIDTH_CHAR[0]);
+
+    if (yourText.length > 0) {
+      const textArr = Array.from(yourText);
+      textArr.splice(1, 0, res);
+      setResultText(textArr.join(''));
+    } else {
+      setResultText(res);
+    }
+  };
+
+  const antiStego = () => {
+    if (steganographyText.length === 0) {
+      message.open({
+        type: 'warning',
+        content: '要反隐写的文本不能为空',
+      });
+
+      return;
+    }
+
+    // 反隐写字符串分割成字符串数组
+    const textArr = steganographyText.split(ZERO_WIDTH_CHAR[0]);
+
+    // 将数组中的文本转回成二进制数组
+    const binArr = textArr.map(str =>
+      Array
+        .from(str)
+        .map(singleStr => {
+          if (singleStr === ZERO_WIDTH_CHAR[1]) {
+            return '1';
+          }
+
+          if (singleStr === ZERO_WIDTH_CHAR[2]) {
+            return '0';
+          }
+
+          return '';
+        })
+        .join('')
+    );
+
+    // 将二进制文本转回十进制，再使用 String.fromCodePoint 转为原文本
+    const hidden = binArr
+      .map(singleBin => String.fromCodePoint(parseInt(singleBin, 2)))
+      .join('');
+
+    setHiddenText(hidden);
+  };
+
+  const handleReset = () => {
+    setSteganographyText('');
+    setHiddenText('');
+  };
 
   return (
     <div>
@@ -89,7 +147,7 @@ export default function TextSteganography() {
               <Button type="primary" className='w-1/2' onClick={steganography}>
                 {'隐写'}
               </Button>
-              <Button className='ml-2 w-1/2' onClick={() => handleCopy('result')}>
+              <Button className='ml-2 w-1/2' onClick={handleCopy}>
                 {'复制结果'}
               </Button>
             </div>
@@ -123,8 +181,8 @@ export default function TextSteganography() {
               <Button type="primary" className='w-1/2' onClick={antiStego}>
                 {'反隐写'}
               </Button>
-              <Button className='ml-2 w-1/2' onClick={() => handleCopy('hidden')}>
-                {'复制结果'}
+              <Button className='ml-2 w-1/2' onClick={handleReset}>
+                {'重置'}
               </Button>
             </div>
           </Form.Item>
