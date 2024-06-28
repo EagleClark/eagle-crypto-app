@@ -5,11 +5,6 @@ import React from 'react';
 import { AntdRegistry } from '@ant-design/nextjs-registry';
 import { ConfigProvider, theme } from 'antd';
 import { Layout } from 'antd';
-import { useRouter } from 'next/navigation';
-import { appWindow, LogicalSize } from '@tauri-apps/api/window';
-import { ROUTER_MAP } from './lib/constant';
-
-appWindow.setMinSize(new LogicalSize(800, 600));
 
 const { Header, Sider, Content } = Layout;
 
@@ -43,32 +38,26 @@ const RootLayout = (props: {
   children: React.ReactNode;
   header: React.ReactNode;
   aside: React.ReactNode;
-}) => {
-  const router = useRouter();
-  router.push(ROUTER_MAP['/steganography'].path);
-
-  return (
-    <html lang="en">
-      <body>
-        <AntdRegistry>
-          <ConfigProvider theme={{ algorithm: theme.darkAlgorithm }}>
-          {/* <ConfigProvider> */}
-            <Layout style={layoutStyle}>
-              <Sider style={siderStyle} collapsed>
-                {props.aside}
-              </Sider>
-              <Layout style={innerLayoutStyle}>
-                <Header style={headerStyle}>
-                  {props.header}
-                </Header>
-                <Content style={contentStyle}>{props.children}</Content>
-              </Layout>
+}) => (
+  <html lang="en">
+    <body>
+      <AntdRegistry>
+        <ConfigProvider theme={{ algorithm: theme.darkAlgorithm }}>
+          <Layout style={layoutStyle}>
+            <Sider style={siderStyle} collapsed>
+              {props.aside}
+            </Sider>
+            <Layout style={innerLayoutStyle}>
+              <Header style={headerStyle}>
+                {props.header}
+              </Header>
+              <Content style={contentStyle}>{props.children}</Content>
             </Layout>
-          </ConfigProvider>
-        </AntdRegistry>
-      </body>
-    </html>
-  );
-};
+          </Layout>
+        </ConfigProvider>
+      </AntdRegistry>
+    </body>
+  </html>
+);
 
 export default RootLayout;

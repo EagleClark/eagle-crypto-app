@@ -1,11 +1,9 @@
-'use client'
-
 import React from 'react';
 import { Tabs, TabsProps } from 'antd';
 import TextSteganography from './TextSteganography';
 import SensitiveWords from './SensitiveWords';
 
-export default function ImageCrypto() {
+export default function Steganography() {
   const items: TabsProps['items'] = [
     {
       key: 'text',

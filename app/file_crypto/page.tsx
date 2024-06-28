@@ -5,7 +5,6 @@ import { InboxOutlined } from '@ant-design/icons';
 import type { UploadFile } from 'antd';
 import { Button, Input, message, Space, Spin, Upload } from 'antd';
 import { open, save } from '@tauri-apps/api/dialog';
-import { appWindow } from '@tauri-apps/api/window';
 import { UnlistenFn } from '@tauri-apps/api/event';
 import { invoke } from '@tauri-apps/api/tauri';
 
@@ -138,6 +137,7 @@ const FileCrypto: React.FC = () => {
     let unlistenDropFile: UnlistenFn | (() => void) = () => {};
 
     async function listenDropFile() {
+      const { appWindow } = (await import('@tauri-apps/api/window'));
       unlistenDropFile = await appWindow.onFileDropEvent((event) => {
         if (event.payload.type === 'drop') {
           setFilePath(event.payload.paths[0]);
@@ -210,6 +210,5 @@ const FileCrypto: React.FC = () => {
     </div>
   );
 }
-  
 
 export default FileCrypto;

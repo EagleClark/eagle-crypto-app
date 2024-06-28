@@ -1,3 +1,5 @@
+'use client'
+
 import React, { ChangeEvent, useState } from 'react';
 import { Alert, Button, Form, Input, message, Space } from 'antd';
 import { useCopy } from './useCopy';

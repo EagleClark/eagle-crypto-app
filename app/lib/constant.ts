@@ -1,4 +1,5 @@
 export const ROUTER_MAP = {
+  '/': { path: '/', title: '' },
   '/file_crypto': { path: '/file_crypto', title: '文件加密/解密' },
   '/steganography': { path: '/steganography', title: '隐写术' },
 };

@@ -4,7 +4,7 @@
     "beforeBuildCommand": "pnpm run build",
     "beforeDevCommand": "pnpm run dev",
     "devPath": "http://localhost:3000",
-    "distDir": "../out"
+    "distDir": "../build"
   },
   "package": {
     "productName": "eagle-crypto-app",
@@ -22,6 +22,7 @@
         "all": true
       },
       "window": {
+        "all": true,
         "setMinSize": true
       }
     },
@@ -40,7 +41,7 @@
         "icons/icon.icns",
         "icons/icon.ico"
       ],
-      "identifier": "com.tauri.dev",
+      "identifier": "com.eagle-crypto-app.dev",
       "longDescription": "",
       "macOS": {
         "entitlements": null,
