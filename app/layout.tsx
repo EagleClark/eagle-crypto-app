@@ -3,8 +3,9 @@
 import './globals.css';
 import React from 'react';
 import { AntdRegistry } from '@ant-design/nextjs-registry';
-import { ConfigProvider, theme } from 'antd';
+import { ConfigProvider } from 'antd';
 import { Layout } from 'antd';
+import { useTheme } from './lib/store/theme';
 
 const { Header, Sider, Content } = Layout;
 
@@ -38,26 +39,30 @@ const RootLayout = (props: {
   children: React.ReactNode;
   header: React.ReactNode;
   aside: React.ReactNode;
-}) => (
-  <html lang="en">
-    <body>
-      <AntdRegistry>
-        <ConfigProvider theme={{ algorithm: theme.darkAlgorithm }}>
-          <Layout style={layoutStyle}>
-            <Sider style={siderStyle} collapsed>
-              {props.aside}
-            </Sider>
-            <Layout style={innerLayoutStyle}>
-              <Header style={headerStyle}>
-                {props.header}
-              </Header>
-              <Content style={contentStyle}>{props.children}</Content>
+}) => {
+  const { theme, algorithm } = useTheme();
+
+  return (
+    <html lang="en">
+      <body>
+        <AntdRegistry>
+          <ConfigProvider theme={{ algorithm }}>
+            <Layout style={layoutStyle}>
+              <Sider style={siderStyle} collapsed theme={theme}>
+                {props.aside}
+              </Sider>
+              <Layout style={innerLayoutStyle}>
+                <Header style={headerStyle}>
+                  {props.header}
+                </Header>
+                <Content style={contentStyle}>{props.children}</Content>
+              </Layout>
             </Layout>
-          </Layout>
-        </ConfigProvider>
-      </AntdRegistry>
-    </body>
-  </html>
-);
+          </ConfigProvider>
+        </AntdRegistry>
+      </body>
+    </html>
+  )
+};
 
 export default RootLayout;
