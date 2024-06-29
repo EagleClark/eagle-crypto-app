@@ -40,3 +40,4 @@ pnpm tauri build
 - NextJS 服务端渲染和客户端渲染页面优化
 - 图片隐写功能开发
 - Tauri 关于页面开发
+- 国际化开发
