@@ -37,6 +37,7 @@ pnpm tauri build
 ## TODO LIST
 
 - 添加 `AES` 加密、解密文件不存在错误处理
+- `AES` 加解密性能优化
 - NextJS 服务端渲染和客户端渲染页面优化
 - 图片隐写功能开发
 - Tauri 关于页面开发
