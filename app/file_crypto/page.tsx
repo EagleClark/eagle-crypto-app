@@ -85,11 +85,18 @@ const FileCrypto: React.FC = () => {
       secretKey: secretKey.padEnd(32, '0'),
       savePath,
     })
-    .then(() => {
-      messageApi.open({
-        type: 'success',
-        content: '加密文件成功，请保管好您的密码，否则文件将无法解密',
-      });
+    .then(res => {
+      if (res === 'success') {
+        messageApi.open({
+          type: 'success',
+          content: '加密文件成功，请保管好您的密码，否则文件将无法解密',
+        });
+      } else {
+        messageApi.open({
+          type: 'error',
+          content: '文件打开失败或文件已被删除',
+        });
+      }
     })
     .finally(() => {
       setSecretKey('');
@@ -119,6 +126,11 @@ const FileCrypto: React.FC = () => {
         messageApi.open({
           type: 'success',
           content: '解密文件成功',
+        });
+      } else if (res === 'notFound') {
+        messageApi.open({
+          type: 'error',
+          content: '文件打开失败或文件已被删除',
         });
       } else {
         messageApi.open({

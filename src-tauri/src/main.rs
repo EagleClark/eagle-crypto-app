@@ -28,38 +28,48 @@ fn main() {
 }
 
 #[tauri::command]
-async fn aes256_encrypt(file_path: String, secret_key: String, save_path: String) {
+async fn aes256_encrypt(file_path: String, secret_key: String, save_path: String) -> String {
   let key = secret_key.as_bytes();
   let iv = &key[0..16];
+  let mut res = String::from("");
 
   // 创建一个新文件
   let mut file = OpenOptions::new().create(true).append(true).open(save_path).unwrap();
 
-  // TODO 找不到文件
   // 打开选择的文件
-  let file_tobe_encrypt = File::open(file_path).unwrap();
+  let file_tobe_encrypt = File::open(file_path);
 
-  // 读取文件
-  let mut reader = BufReader::with_capacity(ENCRYPT_BUFFER_SIZE, file_tobe_encrypt);
+  match file_tobe_encrypt {
+    Ok(data) => {
+      // 读取文件
+      let mut reader = BufReader::with_capacity(ENCRYPT_BUFFER_SIZE, data);
 
-  loop {
-      let buffer = reader.fill_buf().unwrap();
+      loop {
+          let buffer = reader.fill_buf().unwrap();
 
-      let buffer_length = buffer.len();
+          let buffer_length = buffer.len();
 
-      if buffer_length == 0 {
-        break;
+          if buffer_length == 0 {
+            res.push_str("success");
+            break;
+          }
+
+          // 加密
+          let e_data = aes256::aes256_cbc_encrypt(buffer, key, iv).unwrap();
+
+          // 写入内容到文件
+          file.write_all(&e_data).unwrap();
+
+          // 冲缓冲区中消耗所有字节
+          reader.consume(buffer_length);
       }
-
-      // 加密
-      let e_data = aes256::aes256_cbc_encrypt(buffer, key, iv).unwrap();
-
-      // 写入内容到文件
-      file.write_all(&e_data).unwrap();
-
-      // 冲缓冲区中消耗所有字节
-      reader.consume(buffer_length);
+    },
+    Err(_) => {
+      res.push_str("notFound");
+    }
   }
+
+  res.into()
 }
 
 #[tauri::command]
@@ -71,40 +81,46 @@ async fn aes256_decrypt(file_path: String, secret_key: String, save_path: String
   // 创建一个新文件，待写入数据
   let mut file = OpenOptions::new().create(true).append(true).open(&save_path).unwrap();
 
-  // TODO 找不到文件
   // 打开待解密文件
-  let file_tobe_decrypt = File::open(file_path).unwrap();
+  let file_tobe_decrypt = File::open(file_path);
 
-  // 读取待解密文件
-  let mut reader = BufReader::with_capacity(DECRYPT_BUFFER_SIZE, file_tobe_decrypt);
+  match file_tobe_decrypt {
+    Ok(data) => {
+      // 读取待解密文件
+      let mut reader = BufReader::with_capacity(DECRYPT_BUFFER_SIZE, data);
 
-  loop {
-      let buffer = reader.fill_buf().unwrap();
+      loop {
+          let buffer = reader.fill_buf().unwrap();
 
-      let buffer_length = buffer.len();
+          let buffer_length = buffer.len();
 
-      if buffer_length == 0 {
-        res.push_str("success");
-        break;
+          if buffer_length == 0 {
+            res.push_str("success");
+            break;
+          }
+
+          // 解密
+          let d_data = aes256::aes256_cbc_decrypt(buffer, &key, &iv);
+
+          match d_data {
+            Ok(data) => {
+              // 写入内容到新文件
+              file.write_all(&data).unwrap();
+
+              // 冲缓冲区中消耗所有字节
+              reader.consume(buffer_length);
+            },
+            Err(_) => {
+              remove_file(&save_path).unwrap();
+              res.push_str("failed");
+              break;
+            }
+        };
       }
-
-      // 解密
-      let d_data = aes256::aes256_cbc_decrypt(buffer, &key, &iv);
-
-      match d_data {
-        Ok(data) => {
-          // 写入内容到新文件
-          file.write_all(&data).unwrap();
-
-          // 冲缓冲区中消耗所有字节
-          reader.consume(buffer_length);
-        },
-        Err(_) => {
-          remove_file(&save_path).unwrap();
-          res.push_str("failed");
-          break;
-        }
-    };
+    },
+    Err(_) => {
+      res.push_str("notFound");
+    }
   }
 
   res.into()
