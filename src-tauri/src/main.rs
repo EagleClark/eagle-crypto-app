@@ -119,6 +119,7 @@ async fn aes256_decrypt(file_path: String, secret_key: String, save_path: String
       }
     },
     Err(_) => {
+      remove_file(&save_path).unwrap();
       res.push_str("notFound");
     }
   }
