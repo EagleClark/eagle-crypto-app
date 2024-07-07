@@ -1,7 +1,7 @@
 'use client'
 
 import { Menu } from 'antd';
-import { FileUnknownOutlined, LockOutlined } from '@ant-design/icons';
+import { FileImageOutlined, FileUnknownOutlined, LockOutlined } from '@ant-design/icons';
 import type { GetProp, MenuProps } from 'antd';
 import { useRouter } from 'next/navigation';
 import { ROUTER_MAP } from '../lib/constant';
@@ -16,12 +16,30 @@ export default function Aside() {
   const router = useRouter();
   const { switchTheme, theme } = useTheme();
   const items: MenuItem[] = [
-    { key: '1', icon: <LockOutlined />, label: ROUTER_MAP['/file_crypto'].title, onClick: () => {
-      router.push(ROUTER_MAP['/file_crypto'].path);
-    } },
-    { key: '2', icon: <FileUnknownOutlined />, label: ROUTER_MAP['/steganography'].title, onClick: () => {
-      router.push(ROUTER_MAP['/steganography'].path);
-    }  },
+    {
+      key: '1',
+      icon: <LockOutlined />,
+      label: ROUTER_MAP['/file_crypto'].title,
+      onClick: () => {
+        router.push(ROUTER_MAP['/file_crypto'].path);
+      },
+    },
+    {
+      key: '2',
+      icon: <FileUnknownOutlined />,
+      label: ROUTER_MAP['/text_steganography'].title,
+      onClick: () => {
+        router.push(ROUTER_MAP['/text_steganography'].path);
+      },
+    },
+    {
+      key: '3',
+      icon: <FileImageOutlined />,
+      label: ROUTER_MAP['/image_steganography'].title,
+      onClick: () => {
+        router.push(ROUTER_MAP['/image_steganography'].path);
+      },
+    },
   ];
 
   return (

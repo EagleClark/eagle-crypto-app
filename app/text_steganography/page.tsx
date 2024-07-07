@@ -7,7 +7,7 @@ export default function Steganography() {
   const items: TabsProps['items'] = [
     {
       key: 'text',
-      label: '文字隐写',
+      label: '文本隐写',
       children: <TextSteganography />,
     },
     {

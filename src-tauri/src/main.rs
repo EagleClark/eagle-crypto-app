@@ -10,7 +10,11 @@ const ENCRYPT_BUFFER_SIZE: usize = 512;
 
 const DECRYPT_BUFFER_SIZE: usize = 528;
 
+mod menu;
+
 fn main() {
+  let context = tauri::generate_context!();
+
   use tauri::Manager;
   tauri::Builder::default()
     .setup(|app| {
@@ -22,8 +26,10 @@ fn main() {
       }
       Ok(())
     })
+    .menu(menu::init(&context))
+    .on_menu_event(menu::handler)
     .invoke_handler(tauri::generate_handler![aes256_encrypt, aes256_decrypt])
-    .run(tauri::generate_context!())
+    .run(context)
     .expect("error while running tauri application");
 }
 
