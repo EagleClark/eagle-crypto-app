@@ -24,6 +24,11 @@
       "window": {
         "all": true,
         "setMinSize": true
+      },
+      "fs": {
+        "all": true,
+        "readFile": true,
+        "writeFile": true
       }
     },
     "bundle": {
