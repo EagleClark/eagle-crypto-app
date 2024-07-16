@@ -30,19 +30,19 @@ pnpm tauri build
 
 ### 文件加解密
 
-![pic1](https://fastly.jsdelivr.net/gh/EagleClark/cdn@0.0.3/pictures/pic1.jpg)
+![pic1](https://fastly.jsdelivr.net/gh/EagleClark/cdn@0.0.4/pictures/pic1.jpg)
 
 ### 文本隐写
 
-![pic2](https://fastly.jsdelivr.net/gh/EagleClark/cdn@0.0.3/pictures/pic2.jpg)
+![pic2](https://fastly.jsdelivr.net/gh/EagleClark/cdn@0.0.4/pictures/pic2.jpg)
 
-![pic3](https://fastly.jsdelivr.net/gh/EagleClark/cdn@0.0.3/pictures/pic3.jpg)
+![pic3](https://fastly.jsdelivr.net/gh/EagleClark/cdn@0.0.4/pictures/pic3.jpg)
 
 ### 图片隐写
 
-![pic4](https://fastly.jsdelivr.net/gh/EagleClark/cdn@0.0.3/pictures/pic4.jpg)
+![pic4](https://fastly.jsdelivr.net/gh/EagleClark/cdn@0.0.4/pictures/pic4.jpg)
 
-![pic5](https://fastly.jsdelivr.net/gh/EagleClark/cdn@0.0.3/pictures/pic5.jpg)
+![pic5](https://fastly.jsdelivr.net/gh/EagleClark/cdn@0.0.4/pictures/pic5.jpg)
 
 ## TODO LIST
 

@@ -4,7 +4,7 @@ import React, { useRef, useState } from 'react';
 import { save } from '@tauri-apps/api/dialog';
 import { useImage, FileType } from './useImage';
 import { Alert, Button, Image, message, Space, Upload, UploadFile, UploadProps } from 'antd';
-import { UnlockOutlined, UploadOutlined } from '@ant-design/icons';
+import { SaveOutlined, UnlockOutlined, UploadOutlined } from '@ant-design/icons';
 import styles from './Styles.module.scss';
 import { decryptWithLSB } from './lsbUtils';
 import { writeBinaryFile } from '@tauri-apps/api/fs';
@@ -191,7 +191,7 @@ export default function DecryptImage() {
             size="large"
             block
             loading={saveLoading}
-            icon={<UnlockOutlined />}
+            icon={<SaveOutlined />}
             onClick={handleSave}
           >
             {'保存图片'}
