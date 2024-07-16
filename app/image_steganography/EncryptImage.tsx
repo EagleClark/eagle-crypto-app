@@ -5,11 +5,11 @@ import { save } from '@tauri-apps/api/dialog';
 import { useImage, FileType } from './useImage';
 import { Alert, Button, Image, message, Space, Upload, UploadFile, UploadProps } from 'antd';
 import { UploadOutlined } from '@ant-design/icons';
-import styles from './EncryptoImage.module.scss';
-import { encryptoWithLSB } from './lsbUtils';
+import styles from './Styles.module.scss';
+import { encryptWithLSB } from './lsbUtils';
 import { writeBinaryFile } from '@tauri-apps/api/fs';
 
-export default function EncryptoImage() {
+export default function EncryptImage() {
   const originCanvas = useRef<HTMLCanvasElement>(null);
   const secretCanvas = useRef<HTMLCanvasElement>(null);
   const [, loadOriginImage] = useImage(originCanvas);
@@ -65,7 +65,7 @@ export default function EncryptoImage() {
 
     if (originImageData && secretImageData) {
       setLoading(true);
-      const resImageData = encryptoWithLSB(originImageData, secretImageData);
+      const resImageData = encryptWithLSB(originImageData, secretImageData);
 
       if (resImageData) {
         const canvas = document.createElement('canvas');
@@ -101,7 +101,7 @@ export default function EncryptoImage() {
   };
 
   return (
-    <div className={styles['encrypto-image']}>
+    <div className={styles['upload-image']}>
       {contextHolder}
       <Space direction='vertical' className='w-full'>
         <Alert

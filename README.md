@@ -28,15 +28,25 @@ pnpm tauri build
 
 ## 效果展示
 
-![pic1](https://fastly.jsdelivr.net/gh/EagleClark/cdn@0.0.2/pictures/pic1.jpg)
+### 文件加解密
 
-![pic2](https://fastly.jsdelivr.net/gh/EagleClark/cdn@0.0.2/pictures/pic2.jpg)
+![pic1](https://fastly.jsdelivr.net/gh/EagleClark/cdn@0.0.3/pictures/pic1.jpg)
 
-![pic3](https://fastly.jsdelivr.net/gh/EagleClark/cdn@0.0.2/pictures/pic3.jpg)
+### 文本隐写
+
+![pic2](https://fastly.jsdelivr.net/gh/EagleClark/cdn@0.0.3/pictures/pic2.jpg)
+
+![pic3](https://fastly.jsdelivr.net/gh/EagleClark/cdn@0.0.3/pictures/pic3.jpg)
+
+### 图片隐写
+
+![pic4](https://fastly.jsdelivr.net/gh/EagleClark/cdn@0.0.3/pictures/pic4.jpg)
+
+![pic5](https://fastly.jsdelivr.net/gh/EagleClark/cdn@0.0.3/pictures/pic5.jpg)
 
 ## TODO LIST
 
 - `AES` 加解密性能优化
 - NextJS 服务端渲染和客户端渲染页面优化
-- 图片隐写功能开发
 - 国际化开发
+- 更多隐写或加解密玩儿法

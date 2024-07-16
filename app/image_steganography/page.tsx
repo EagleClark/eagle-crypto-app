@@ -1,19 +1,19 @@
 import React from 'react';
 import { Tabs, TabsProps } from 'antd';
-import EncryptoImage from './EncryptoImage';
-import DecryptoImage from './DecryptoImage';
+import EncryptImage from './EncryptImage';
+import DecryptImage from './DecryptImage';
 
 export default function Steganography() {
   const items: TabsProps['items'] = [
     {
       key: 'encrypt-image',
       label: '图片隐写',
-      children: <EncryptoImage />,
+      children: <EncryptImage />,
     },
     {
       key: 'decrypt-image',
       label: '图片反隐写',
-      children: <DecryptoImage />,
+      children: <DecryptImage />,
     },
   ];
 

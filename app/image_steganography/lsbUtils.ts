@@ -2,11 +2,16 @@
 const WIDTH_PIXEL = 16;
 const HEIGHT_PIXEL = 16;
 
-export function encryptoWithLSB(originImageData: ImageData, secretImageData: ImageData) {
+const TOTAL_BIT = WIDTH_PIXEL + HEIGHT_PIXEL;
+
+const getImageTotalBit = (widthPixels: number, heightPixels: number) =>
+  widthPixels * heightPixels * 4 * 8 + TOTAL_BIT;
+
+export function encryptWithLSB(originImageData: ImageData, secretImageData: ImageData) {
   const originPixel = originImageData.width * originImageData.height;
   const secretPixel = secretImageData.width * secretImageData.height;
 
-  if (originPixel < secretPixel * 8 + WIDTH_PIXEL + HEIGHT_PIXEL) {
+  if (originPixel < secretPixel * 8 + TOTAL_BIT) {
     return null;
   }
 
@@ -37,7 +42,7 @@ export function encryptoWithLSB(originImageData: ImageData, secretImageData: Ima
   }
 
   // 3.将隐写数据写入原图
-  let originImageDataIndex = WIDTH_PIXEL + HEIGHT_PIXEL;
+  let originImageDataIndex = TOTAL_BIT;
   for (let i = 0; i < secretImageData.data.length; i++) {
     const currentData = secretImageData.data[i];
     const currentDataArr = currentData.toString(2).padStart(8, "0").split("");
@@ -57,7 +62,7 @@ export function encryptoWithLSB(originImageData: ImageData, secretImageData: Ima
   return resImageData;
 }
 
-export function decryptoWithLSB(originImageData: ImageData) {
+export function decryptWithLSB(originImageData: ImageData) {
   let widthBinStr = '';
   for (let i = 0; i < WIDTH_PIXEL; i++) {
     const lastBit = (originImageData.data[i] & 0b00000001).toString();
@@ -66,15 +71,17 @@ export function decryptoWithLSB(originImageData: ImageData) {
   const widthPixels = parseInt(widthBinStr, 2);
 
   let heightBinStr = '';
-  for (let i = WIDTH_PIXEL; i < WIDTH_PIXEL + HEIGHT_PIXEL; i++) {
+  for (let i = WIDTH_PIXEL; i < TOTAL_BIT; i++) {
     const lastBit = (originImageData.data[i] & 0b00000001).toString();
     heightBinStr += lastBit;
   }
   const heightPixels = parseInt(heightBinStr, 2);
 
+  const imageTotalBit = getImageTotalBit(widthPixels, heightPixels);
+
   if (
     widthPixels * heightPixels === 0
-    || widthPixels * heightPixels * 4 * 8 + WIDTH_PIXEL + HEIGHT_PIXEL > originImageData.data.length
+    || imageTotalBit > originImageData.data.length
   ) {
     return { resImageData: null, widthPixels, heightPixels };
   }
@@ -83,7 +90,7 @@ export function decryptoWithLSB(originImageData: ImageData) {
 
   let byteStr = '';
   let resImageIndex = 0;
-  for (let i = WIDTH_PIXEL + HEIGHT_PIXEL; i < widthPixels * heightPixels * 4 * 8 + WIDTH_PIXEL + HEIGHT_PIXEL; i++) {
+  for (let i = TOTAL_BIT; i < imageTotalBit; i++) {
     const lastBit = (originImageData.data[i] & 0b00000001).toString();
     byteStr += lastBit;
 

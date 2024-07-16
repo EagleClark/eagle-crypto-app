@@ -21,8 +21,9 @@ pub fn init(context: &Context<EmbeddedAssets>) -> Menu {
   );
   // 作者菜单（自定义菜单）
   let author_menu = Submenu::new(
-"Author",
+"About",
 Menu::new()
+      .add_item(CustomMenuItem::new("project".to_string(), "About project"))
       .add_item(CustomMenuItem::new("author".to_string(), "About author")),
   );
 
@@ -37,6 +38,10 @@ pub fn handler(event: WindowMenuEvent) {
   let win = Some(event.window());
   // 匹配菜单 id
   match event.menu_item_id() {
+    "project" => {
+      // 发送信息到菜单所属窗口（弹窗形式）
+      message(win, "Project address", "https://github.com/EagleClark/eagle-crypto-app");
+    }
     "author" => {
       // 发送信息到菜单所属窗口（弹窗形式）
       message(win, "Eagle Clark's Blog", "https://eagle90.com");

@@ -5,30 +5,38 @@ import { save } from '@tauri-apps/api/dialog';
 import { useImage, FileType } from './useImage';
 import { Alert, Button, Image, message, Space, Upload, UploadFile, UploadProps } from 'antd';
 import { UnlockOutlined, UploadOutlined } from '@ant-design/icons';
-import styles from './EncryptoImage.module.scss';
-import { decryptoWithLSB } from './lsbUtils';
+import styles from './Styles.module.scss';
+import { decryptWithLSB } from './lsbUtils';
 import { writeBinaryFile } from '@tauri-apps/api/fs';
 
-export default function DecryptoImage() {
+export default function DecryptImage() {
   const originCanvas = useRef<HTMLCanvasElement>(null);
   const [, loadOriginImage] = useImage(originCanvas);
   const [originSrc, setOriginSrc] = useState('');
   const [originFileList, setOriginFileList] = useState<UploadFile[]>([]);
+  const [decryptFileList, setDecryptFileList] = useState<UploadFile[]>([]);
   const [previewOpen, setPreviewOpen] = useState(false);
   const [previewImage, setPreviewImage] = useState('');
   const [loading, setLoading] = useState(false);
+  const [saveLoading, setSaveLoading] = useState(false);
   const [messageApi, contextHolder] = message.useMessage();
+  const decryptImageData = useRef<ImageData | null>(null);
+  const decryptWidthPixels = useRef(0);
+  const decryptHeightPixels = useRef(0);
 
   const handlePreview = (file: UploadFile) => {
     if (!file.url && !file.preview) {
+      // 导入的图片使用 preview 属性
       file.preview = originSrc;
     }
 
+    // 解析的图片使用 url 属性
     setPreviewImage(file.url || (file.preview as string));
     setPreviewOpen(true);
   };
 
   const handleOriginChange: UploadProps['onChange'] = async ({ fileList: newFileList }) => {
+    console.log(newFileList);
     setOriginFileList(newFileList);
 
     if (newFileList.length === 0) {
@@ -39,14 +47,33 @@ export default function DecryptoImage() {
     setOriginSrc(base64Url);
   };
 
-  const handleExec = async () => {
+  const handleDecrpytChange: UploadProps['onChange'] = async ({ fileList: newFileList }) => {
+    if (newFileList.length === 0) {
+      setDecryptFileList(newFileList);
+    }
+  };
+
+  const handleDecrypt = async () => {
     const originImageData = originCanvas.current
       ?.getContext('2d')
       ?.getImageData(0, 0, originCanvas.current!.width, originCanvas.current!.height);
 
     if (originImageData) {
       setLoading(true);
-      const { resImageData, widthPixels, heightPixels } = decryptoWithLSB(originImageData);
+      const { resImageData, widthPixels, heightPixels } = decryptWithLSB(originImageData);
+
+      if (!resImageData) {
+        messageApi.open({
+          type: 'error',
+          content: '图片不含有隐写内容或解析失败！',
+        });
+        setLoading(false);
+        return;
+      }
+
+      decryptImageData.current = resImageData;
+      decryptWidthPixels.current = widthPixels;
+      decryptHeightPixels.current = heightPixels;
 
       if (resImageData) {
         const canvas = document.createElement('canvas');
@@ -54,35 +81,61 @@ export default function DecryptoImage() {
         canvas.height = heightPixels;
         const ctx = canvas.getContext('2d')!;
         ctx.putImageData(resImageData, 0, 0);
-        
-        const savePath = await save({ filters: [{ name: '', extensions: ['png'] }]});
 
-        if (!savePath) {
-          setLoading(false);
-          return;
-        }
+        setDecryptFileList([{
+          uid: '-1',
+          name: 'image.png',
+          status: 'done',
+          url: canvas.toDataURL(),
+        },]);
 
-        canvas.toBlob(async blob => {
-          const arr = await blob!.arrayBuffer()
-          await writeBinaryFile(savePath, arr);
-          setLoading(false);
-          messageApi.open({
-            type: 'success',
-            content: '解析并保存成功！',
-          });
-        });
-      } else {
         messageApi.open({
-          type: 'error',
-          content: '图片不含有隐写内容或解析失败！',
+          type: 'success',
+          content: '解析成功！',
         });
         setLoading(false);
       }
     }
   };
 
+  const handleSave = async () => {
+    if (!decryptImageData.current) {
+      messageApi.open({
+        type: 'error',
+        content: '图片不含有隐写内容或解析失败！',
+      });
+      return;
+    }
+
+    setSaveLoading(true);
+
+    const canvas = document.createElement('canvas');
+    canvas.width = decryptWidthPixels.current;
+    canvas.height = decryptHeightPixels.current;
+    const ctx = canvas.getContext('2d')!;
+    ctx.putImageData(decryptImageData.current, 0, 0);
+    
+    const savePath = await save({ filters: [{ name: 'image', extensions: ['png'] }]});
+
+    if (!savePath) {
+      setSaveLoading(false);
+      return;
+    }
+
+    canvas.toBlob(async blob => {
+      const arr = await blob!.arrayBuffer()
+      await writeBinaryFile(savePath, arr);
+      setSaveLoading(false);
+      messageApi.open({
+        type: 'success',
+        content: '保存成功！',
+      });
+    });
+
+  };
+
   return (
-    <div className={styles['encrypto-image']}>
+    <div className={styles['upload-image']}>
       {contextHolder}
       <Space direction='vertical' className='w-full'>
         <Alert
@@ -96,7 +149,7 @@ export default function DecryptoImage() {
             listType="picture"
             fileList={originFileList}
             onPreview={handlePreview}
-            className="w-full"
+            className="w-1/2"
             maxCount={1}
             onChange={handleOriginChange}
           >
@@ -110,17 +163,38 @@ export default function DecryptoImage() {
               {'导入要解析的图片'}
             </Button>
           </Upload>
+          <Upload
+            listType="picture"
+            fileList={decryptFileList}
+            onPreview={handlePreview}
+            className="w-1/2"
+            maxCount={1}
+            openFileDialogOnClick={false}
+            onChange={handleDecrpytChange}
+          >
+            <Button
+              type="primary"
+              size="large"
+              block
+              loading={loading}
+              icon={<UnlockOutlined />}
+              disabled={originFileList.length === 0}
+              onClick={handleDecrypt}
+            >
+              {'解析图片'}
+            </Button>
+          </Upload>
         </div>
-        {originFileList.length > 0 && (
+        {decryptFileList.length > 0 && (
           <Button
             type="primary"
             size="large"
             block
-            loading={loading}
+            loading={saveLoading}
             icon={<UnlockOutlined />}
-            onClick={handleExec}
+            onClick={handleSave}
           >
-            {'解析并保存'}
+            {'保存图片'}
           </Button>
         )}
         {previewImage && (
