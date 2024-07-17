@@ -140,7 +140,7 @@ export default function DecryptImage() {
       <Space direction='vertical' className='w-full'>
         <Alert
           message="本功能用于解析本软件LSB隐写的图片，仅供休闲娱乐使用。"
-          description="使用方法：先导入要解析的图片（图片格式尽量使用png，否则可能会出现信息丢失，无法解析），下方会显示“解析并保存”按钮。"
+          description="使用方法：先导入要解析的图片（图片格式尽量使用png，否则可能会出现信息丢失，无法解析），成功解析图片后下方会显示“保存图片”按钮。"
           type="info"
           showIcon
         />
