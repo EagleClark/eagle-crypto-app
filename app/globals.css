@@ -6,6 +6,30 @@ body {
   margin: 0;
 }
 
+main::-webkit-scrollbar {
+  width: 6px;
+}
+
+main.light::-webkit-scrollbar-thumb {
+  border-radius: 5px;
+  background: #999999;
+  box-shadow: inset 0 0 6px rgba(255, 255, 255, 0.3);
+}
+
+main.dark::-webkit-scrollbar-thumb {
+  border-radius: 5px;
+  background: #6b7280;
+  box-shadow: inset 0 0 6px rgba(255, 255, 255, 0.3);
+}
+
+main.light::-webkit-scrollbar-track {
+  background: #ffffff;
+}
+
+main.dark::-webkit-scrollbar-track {
+  background: #000000;
+}
+
 @layer utilities {
   .text-balance {
     text-wrap: balance;

@@ -55,7 +55,7 @@ const RootLayout = (props: {
                 <Header style={headerStyle}>
                   {props.header}
                 </Header>
-                <Content style={contentStyle}>{props.children}</Content>
+                <Content className={theme} style={contentStyle}>{props.children}</Content>
               </Layout>
             </Layout>
           </ConfigProvider>
